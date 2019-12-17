@@ -9,3 +9,6 @@ This simple and lightweight package loads your world.json file on server start, 
 Create a folder inside your servers package folder called world, download all files from this repository and place them inside the world folder.
 Edit your server_config.json to install world as a package.<br/>
 **Please disable the sandbox package before enabling this!**
+
+#### World.json
+This file must be placed in the root server directory, this means the folder with server_config.json and OnsetServer.exe.
