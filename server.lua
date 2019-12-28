@@ -21,27 +21,46 @@ local DoorConfig = {
   [39]=270
 }
 
-function World_LoadWorld()
-  if WorldLoaded then return end
-  if IsPackageStarted('sandbox') then return error('ERROR: Not loading world since sandbox package is enabled, this package should only be used when sandbox is disabled.') end
-  WorldLoaded = true
+function Editor_LoadWorld()
+  if EditorWorldLoaded then return end
+  EditorWorldLoaded = true
 
   print('Server: Attempting to load world.')
 
   local _table = File_LoadJSONTable('world.json')
-  for _,v in pairs(_table) do
-    if v['modelID'] ~= nil then
-      CreateObject(v['modelID'], v['x'], v['y'], v['z'], v['rx'], v['ry'], v['rz'], v['sx'], v['sy'], v['sz'])
-    else
-      local _AddYaw = DoorConfig[tonumber(doorID)]
-      if _AddYaw == nil then
-        _AddYaw = 90
+  if _table ~= nil then
+    for _,v in pairs(_table) do
+      if v['modelID'] ~= nil then
+        Editor_CreateObject(v['modelID'], v['x'], v['y'], v['z'], v['rx'], v['ry'], v['rz'], v['sx'], v['sy'], v['sz'])
+      else
+        Editor_CreateDoor(v['doorID'], v['x'], v['y'], v['z'], v['yaw'])
       end
+    end
 
-      CreateDoor(v['doorID'], v['x'], v['y'], v['z'], v['yaw'] + _AddYaw, true)
+    print('Server: World loaded!')
+  else
+    print('Server: No world.json found in root server directory, one will be made next time the server saves.')
+  end
+end
+AddEvent('OnPackageStart', Editor_LoadWorld)
+
+function Editor_CreateObject(objectID, x, y, z, rx, ry, rz, sx, sy, sz)
+  local _object = CreateObject(objectID, x, y, z)
+  if _object then
+    if (rx ~= nil and sx ~= nil) then
+      SetObjectRotation(_object, rx, ry, rz)
+      SetObjectScale(_object, sx, sy, sz)
     end
   end
-
-  print('Server: World loaded!')
 end
-AddEvent('OnPackageStart', World_LoadWorld)
+
+function Editor_CreateDoor(doorID, x, y, z, yaw)
+  local _AddYaw = DoorConfig[tonumber(doorID)]
+  if _AddYaw == nil then
+    _AddYaw = 90
+  end
+
+  CreateDoor(doorID, x, y, z, yaw + _AddYaw)
+
+  
+end
